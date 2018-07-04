@@ -1,9 +1,7 @@
 /* Hybrid Flowshops with Lot Steaming Model
    Author: Duy Khai
    Creation Date: 03.07.2018
-   Revised Date: 
-*/
-
+   Revised Date: 04.07.18
 
 /*****************************Parameters**************************************/
 
@@ -14,6 +12,7 @@ tuple Toperation
 	float Setup; // setup time
 }
 Toperation operationCriteria[operation]= ...; //  
+int maxmachines = max(i in operation) operationCriteria[i].NoMachines;
 
 {string} part = ...; // job indexed by n or p 
 tuple Tpart
@@ -24,25 +23,26 @@ tuple Tpart
 }
 Tpart partCriteria[part] = ...;
 
+int maxsublots = max(n in part) partCriteria[n].Maxsublots;
+
 float runtime[part, operation] = ...;
 
-int sublot[i in part] =  partCriteria[i].Maxsublots;
+int productionRun[1..maxmachines, operation] = ...;
+int maxruns = max(m in 1..maxmachines, i in operation) productionRun[m, i];
 
 int BigM = 1000000;
 
 /*****************************Variables ***********************************/
 
-dvar float+ jobC[part, part,operation];
-dvar float+ runC[part, part,operation];
-dvar int sublotSize[part, part];
+dvar float+ jobC[j in 1..maxsublots,n in part, i in operation];
+dvar float+ runC[r in 1..maxruns,m in 1..maxmachines,i in operation];
+dvar int sublotSize[j in 1..maxsublots,n in part];
 dvar float Cmax;
 
-dvar boolean x[r];
-dvar boolean y[];
-dvar boolean z[];
-dvar boolean freesublot[part];
-
-
+dvar boolean x[r in 1..maxruns,m in 1..maxmachines,i in operation, j in 1..maxsublots,n in part];
+dvar boolean y[r in 1..maxruns,m in 1..maxmachines,i in operation,n in part];
+dvar boolean z[r in 1..maxruns,m in 1..maxmachines,i in operation];
+dvar boolean freesublot[j in 1..maxsublots,n in part];
 
 /*****************************Objective ***********************************/
 
@@ -55,12 +55,12 @@ minimize Cmax;
 subject to
 {
 ct1CompletionTime:
-	forall(r in )
+	forall(i in operation, n in part, m in 1..operationCriteria[i].NoMachines, j in 1..partCriteria[n].Maxsublots, r in 1..productionRun[operationCriteria[i].NoMachines, i])
 	  {
-	  
-	  	  
+	  		runC[r, m, i] >= jobC[j, n, i] + BigM * x[r, m, i, j, n] - BigM;
+	  		runC[r, m, i] <= jobC[j, n, i] - BigM * x[r, m, i, j, n] + BigM; 	  	  
 	  }
-
+/*
 ct2StartingAfterFinishingPriorRun:
 	forall()
 	  {
@@ -115,6 +115,7 @@ ct7SublotAssignment:
 
 ct8CmaxConstraint:
 	Cmax == sum()
-
+*/
 }
 
+/*****************************Constraints**********************************/

@@ -24,6 +24,7 @@ machine from SheetRead (data, "machine");
 machineCriteria from SheetRead (data, "machineCriteria");
 */
 runtime from SheetRead (data, "runtime");
+productionRun from SheetRead (data, "productionRun");
 /*changing from SheetRead (data, "changing");
 installing from SheetRead (data, "installing");
 finishing from SheetRead (data, "finishing");
