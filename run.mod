@@ -44,6 +44,10 @@ dvar boolean y[r in 1..maxruns,m in 1..maxmachines,i in operation,n in part];
 dvar boolean z[r in 1..maxruns,m in 1..maxmachines,i in operation];
 dvar boolean freesublot[j in 1..maxsublots,n in part];
 
+dvar boolean B[n in part,i in operation];
+
+
+
 /*****************************Objective ***********************************/
 
 minimize Cmax;
@@ -54,20 +58,22 @@ minimize Cmax;
 
 subject to
 {
+
+/*
 ct1CompletionTime:
 	forall(i in operation, n in part, m in 1..operationCriteria[i].NoMachines, j in 1..partCriteria[n].Maxsublots, r in 1..productionRun[operationCriteria[i].NoMachines, i])
 	  {
-	  		runC[r, m, i] >= jobC[j, n, i] + BigM * x[r, m, i, j, n] - BigM;
-	  		runC[r, m, i] <= jobC[j, n, i] - BigM * x[r, m, i, j, n] + BigM; 	  	  
+	  		runC[r, m, i] >= jobC[j, n, i] - BigM *( 1 - x[r, m, i, j, n]);
+	  		runC[r, m, i] <= jobC[j, n, i] + BigM *( 1 + x[r, m, i, j, n]); 	  	  
 	  }
-/*
+*/
 ct2StartingAfterFinishingPriorRun:
-	forall()
+	forall(i in operation, n in part, m in 1..operationCriteria[i].NoMachines, j in 1..partCriteria[n].Maxsublots, r in 1..productionRun[operationCriteria[i].NoMachines, i] : r > 1 && runtime[i, n] > 0)
 	  {
-	  	  
+	  	  runC[r, m, i] - runtime[i, n] * sublotSize[j, n] - operationCriteria[i].Setup - BigM * (y[r-1, m,i ,n] + x[r, m, i, j, n] - 2) >= runC[r-1, m, i];
 	  }
 
-
+/*
 ct3SetupTimeForNewPartOnMachine:
 	forall()
 	  {
@@ -75,47 +81,53 @@ ct3SetupTimeForNewPartOnMachine:
 	  
 	  	  
 	  }
-
+*/
 ct4BinaryConstraints:
-	forall()
+	forall(i in operation, n in part, m in 1..operationCriteria[i].NoMachines, r in 1..productionRun[operationCriteria[i].NoMachines, i])
 	  {
-	  	y	  
+	  	y[r, m,i ,n] == sum(j in 1..partCriteria[n].Maxsublots) x[r, m, i, j, n];
 	  }
-	forall()
+	forall(i in operation, m in 1..operationCriteria[i].NoMachines, r in 1..productionRun[operationCriteria[i].NoMachines, i])
 	  {
-	  	z  
+	  	z[r, m, i]  == sum(n in part, j in 1..partCriteria[n].Maxsublots) x[r, m, i, j, n];
 	  }
-	forall()
+	forall(n in part, j in 1..partCriteria[n].Maxsublots)
 	  {
-	  	sublotSize	  
+	  	sublotSize[j, n] <= BigM * freesublot[j, n];
 	  }
 	  
-	forall()
+	forall(n in part, j in 1..partCriteria[n].Maxsublots)
 	  {
-	  	freesublot	  
+	  	freesublot[j, n] <= sublotSize[j, n];
 	  }
 
 ct5MachineAssignment:
-	forall()
+	forall(i in operation, m in 1..operationCriteria[i].NoMachines, r in 1..productionRun[operationCriteria[i].NoMachines, i])
 	  {
-	  	  
+	  	  z[r + 1, m, i] == z[r, m, i];
 	  }
 
 ct6DemandSactisfaction:
-	forall()
+	forall(n in part)
 	  {
-	  	  
+	  	 sum(j in 1..partCriteria[n].Maxsublots) sublotSize[j, n] == partCriteria[n].Demand;
 	  }
 
 ct7SublotAssignment:
-	forall()
+	forall(i in operation, n in part,j in 1..partCriteria[n].Maxsublots)
 	  {
-	  	  
+	  	  sum(m in 1..operationCriteria[i].NoMachines, r in 1..productionRun[operationCriteria[i].NoMachines, i]) x[r, m, i, j, n] == freesublot[j, n] * B[n, i];
+	  }
+
+ct7aBdetermination:
+	forall(i in operation, n in part)
+	  {
+	  	if 	  
 	  }
 
 ct8CmaxConstraint:
-	Cmax == sum()
-*/
+	Cmax == sum(r in 1..maxruns,m in 1..maxmachines,i in operation) runC[r, m, i];
+
 }
 
 /*****************************Constraints**********************************/
