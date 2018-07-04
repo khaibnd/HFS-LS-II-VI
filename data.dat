@@ -1,0 +1,54 @@
+/*********************************************
+ * OPL 12.6.2.0 Data
+ * Author: khai.bui
+ * Creation Date: Jun 15, 2018 at 10:51:01 AM
+ *********************************************/
+ 
+ /****************Input***********************/
+SheetConnection data ("data.xlsx");
+
+//period from SheetRead (data, "period");
+
+part from SheetRead (data, "part");
+partCriteria from SheetRead (data, "partCriteria");
+
+operation from SheetRead (data, "operation");
+operationCriteria from SheetRead (data, "operationCriteria");
+/*
+coatDesign from SheetRead (data, "coatDesign");
+coatCriteria from SheetRead (data, "coatCriteria");
+
+worker from SheetRead (data, "worker");
+
+machine from SheetRead (data, "machine");
+machineCriteria from SheetRead (data, "machineCriteria");
+*/
+runtime from SheetRead (data, "runtime");
+/*changing from SheetRead (data, "changing");
+installing from SheetRead (data, "installing");
+finishing from SheetRead (data, "finishing");
+
+workerskill from SheetRead (data, "workerskill");
+
+iniWIP from SheetRead (data, "iniWIP");
+inibackorder from SheetRead (data, "inibackorder");
+Rdemand from SheetRead (data, "demand");
+
+nbholdingcost from SheetRead (data, "nbholdingcost");
+nbbackordercost from SheetRead (data, "nbbackordercost");
+nbchangecost from SheetRead (data, "nbchangecost");
+*/
+
+/****************Output**********************/
+/*
+SheetConnection out ("Part Output.xlsx");
+
+productionReport to SheetWrite (out, "productionReport");
+wipReport to SheetWrite (out, "wipReport");
+FGReport to SheetWrite (out, "FGReport");
+backorderReport to SheetWrite (out, "backorderReport");
+demandReport to SheetWrite (out, "demandReport");
+workerAssignment to SheetWrite (out, "workerAssignment");
+
+*/
+
